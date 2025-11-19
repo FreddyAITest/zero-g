@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Calendar, Clock, User, Mail, Phone, Car, MessageSquare, ArrowLeft } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Calendar, Clock, User, Mail, Phone, Car, MessageSquare, ArrowLeft, CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
 
 export default function Termin() {
@@ -17,25 +17,47 @@ export default function Termin() {
         message: ""
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsSubmitting(true);
+        setSubmitStatus('idle');
 
-        // Construct email body
-        const subject = encodeURIComponent(`Terminanfrage: ${formData.service} - ${formData.car}`);
-        const body = encodeURIComponent(
-            `Neue Terminanfrage:\n\n` +
-            `Name: ${formData.name}\n` +
-            `E-Mail: ${formData.email}\n` +
-            `Telefon: ${formData.phone}\n` +
-            `Fahrzeug: ${formData.car}\n` +
-            `Service: ${formData.service}\n` +
-            `Wunschdatum: ${formData.date}\n` +
-            `Uhrzeit: ${formData.time || 'Keine Angabe'}\n\n` +
-            `Nachricht:\n${formData.message || 'Keine Nachricht'}`
-        );
+        try {
+            const response = await fetch('/api/send-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
 
-        // Open email client
-        window.location.href = `mailto:kontakt@eliasscho.de?subject=${subject}&body=${body}`;
+            const data = await response.json();
+
+            if (data.success) {
+                setSubmitStatus('success');
+                // Reset form
+                setFormData({
+                    name: "",
+                    email: "",
+                    phone: "",
+                    car: "",
+                    service: "",
+                    date: "",
+                    time: "",
+                    message: ""
+                });
+            } else {
+                setSubmitStatus('error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            setSubmitStatus('error');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -67,6 +89,32 @@ export default function Termin() {
                         </p>
                     </motion.div>
 
+                    {/* Success/Error Messages */}
+                    <AnimatePresence>
+                        {submitStatus === 'success' && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0 }}
+                                className="mb-8 p-4 bg-green-500/10 border border-green-500/50 rounded-lg flex items-center gap-3"
+                            >
+                                <CheckCircle className="text-green-500" size={24} />
+                                <p className="text-green-500">Vielen Dank! Ihre Anfrage wurde erfolgreich versendet.</p>
+                            </motion.div>
+                        )}
+                        {submitStatus === 'error' && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0 }}
+                                className="mb-8 p-4 bg-red-500/10 border border-red-500/50 rounded-lg flex items-center gap-3"
+                            >
+                                <XCircle className="text-red-500" size={24} />
+                                <p className="text-red-500">Fehler beim Versenden. Bitte versuchen Sie es erneut.</p>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
                     {/* Form */}
                     <motion.form
                         initial={{ opacity: 0, y: 30 }}
@@ -90,6 +138,7 @@ export default function Termin() {
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white focus:border-white focus:outline-none transition-colors"
                                     placeholder="Max Mustermann"
+                                    disabled={isSubmitting}
                                 />
                             </div>
 
@@ -106,6 +155,7 @@ export default function Termin() {
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white focus:border-white focus:outline-none transition-colors"
                                     placeholder="max@example.com"
+                                    disabled={isSubmitting}
                                 />
                             </div>
 
@@ -122,6 +172,7 @@ export default function Termin() {
                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                     className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white focus:border-white focus:outline-none transition-colors"
                                     placeholder="+49 123 456789"
+                                    disabled={isSubmitting}
                                 />
                             </div>
 
@@ -138,6 +189,7 @@ export default function Termin() {
                                     onChange={(e) => setFormData({ ...formData, car: e.target.value })}
                                     className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white focus:border-white focus:outline-none transition-colors"
                                     placeholder="BMW 3er, VW Golf, etc."
+                                    disabled={isSubmitting}
                                 />
                             </div>
 
@@ -152,14 +204,15 @@ export default function Termin() {
                                     value={formData.service}
                                     onChange={(e) => setFormData({ ...formData, service: e.target.value })}
                                     className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white focus:border-white focus:outline-none transition-colors"
+                                    disabled={isSubmitting}
                                 >
                                     <option value="" className="bg-[#0a0a0a]">Bitte wählen...</option>
-                                    <option value="inspektion" className="bg-[#0a0a0a]">Inspektion & Wartung</option>
-                                    <option value="bremsen" className="bg-[#0a0a0a]">Bremsenservice</option>
-                                    <option value="motor" className="bg-[#0a0a0a]">Motordiagnose</option>
-                                    <option value="unfall" className="bg-[#0a0a0a]">Unfallinstandsetzung</option>
-                                    <option value="emobility" className="bg-[#0a0a0a]">E-Mobilität Service</option>
-                                    <option value="hu" className="bg-[#0a0a0a]">HU / AU</option>
+                                    <option value="Inspektion & Wartung" className="bg-[#0a0a0a]">Inspektion & Wartung</option>
+                                    <option value="Bremsenservice" className="bg-[#0a0a0a]">Bremsenservice</option>
+                                    <option value="Motordiagnose" className="bg-[#0a0a0a]">Motordiagnose</option>
+                                    <option value="Unfallinstandsetzung" className="bg-[#0a0a0a]">Unfallinstandsetzung</option>
+                                    <option value="E-Mobilität Service" className="bg-[#0a0a0a]">E-Mobilität Service</option>
+                                    <option value="HU / AU" className="bg-[#0a0a0a]">HU / AU</option>
                                 </select>
                             </div>
 
@@ -175,6 +228,7 @@ export default function Termin() {
                                     value={formData.date}
                                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                                     className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white focus:border-white focus:outline-none transition-colors"
+                                    disabled={isSubmitting}
                                 />
                             </div>
 
@@ -189,6 +243,7 @@ export default function Termin() {
                                     value={formData.time}
                                     onChange={(e) => setFormData({ ...formData, time: e.target.value })}
                                     className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white focus:border-white focus:outline-none transition-colors"
+                                    disabled={isSubmitting}
                                 />
                             </div>
                         </div>
@@ -205,15 +260,17 @@ export default function Termin() {
                                 rows={4}
                                 className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white focus:border-white focus:outline-none transition-colors resize-none"
                                 placeholder="Weitere Details zu Ihrem Anliegen..."
+                                disabled={isSubmitting}
                             />
                         </div>
 
                         {/* Submit */}
                         <button
                             type="submit"
-                            className="w-full bg-white text-black font-bold uppercase tracking-widest py-4 rounded-lg hover:bg-gray-200 transition-colors"
+                            disabled={isSubmitting}
+                            className="w-full bg-white text-black font-bold uppercase tracking-widest py-4 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Termin Anfragen
+                            {isSubmitting ? 'Wird gesendet...' : 'Termin Anfragen'}
                         </button>
                     </motion.form>
 
