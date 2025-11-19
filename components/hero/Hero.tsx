@@ -26,8 +26,28 @@ function DataNetwork(props: any) {
             points.current.rotation.x -= delta * 0.1;
             points.current.rotation.y -= delta * 0.15;
         }
+    });
+
+    return (
+        <Float speed={1.5} rotationIntensity={0.5} floatIntensity={1}>
+            <points ref={points} {...props}>
+                <bufferGeometry>
+                    <bufferAttribute
+                        attach="attributes-position"
+                        count={particles.length / 3}
+                        array={particles}
+                        itemSize={3}
+                        args={[particles, 3]}
+                    />
+                </bufferGeometry>
+                <pointsMaterial
+                    size={0.03}
+                    color="#00f3ff"
+                    sizeAttenuation={true}
+                    transparent
+                    opacity={0.8}
                 />
-            </points >
+            </points>
             <mesh scale={3}>
                 <icosahedronGeometry args={[1, 2]} />
                 <meshStandardMaterial
@@ -37,7 +57,7 @@ function DataNetwork(props: any) {
                     opacity={0.05}
                 />
             </mesh>
-        </Float >
+        </Float>
     );
 }
 
