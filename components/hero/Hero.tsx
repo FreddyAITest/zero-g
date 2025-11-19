@@ -1,10 +1,12 @@
 "use client";
+"use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import { motion } from "framer-motion";
 import * as THREE from "three";
 import { Environment, Float, ContactShadows } from "@react-three/drei";
+import Link from "next/link";
 
 function FloatingRim(props: any) {
     const meshRef = useRef<THREE.Group>(null!);
@@ -78,9 +80,11 @@ export default function Hero() {
                     </p>
 
                     <div className="flex gap-6">
-                        <button className="px-8 py-4 bg-white text-black font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors">
-                            Termin Buchen
-                        </button>
+                        <Link href="/termin">
+                            <button className="px-8 py-4 bg-white text-black font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors">
+                                Termin Buchen
+                            </button>
+                        </Link>
                         <button className="px-8 py-4 border border-white/20 text-white font-bold uppercase tracking-widest hover:bg-white/5 transition-colors">
                             Unsere Services
                         </button>
