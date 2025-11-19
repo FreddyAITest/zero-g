@@ -21,15 +21,11 @@ function Core(props: any) {
             <mesh {...props} ref={meshRef}>
                 <icosahedronGeometry args={[2, 0]} />
                 <meshStandardMaterial
-                    color="#2a2a2a"
+                    color="#ffffff"
                     roughness={0.1}
                     metalness={0.8}
                     wireframe={true}
                 />
-            </mesh>
-            <mesh ref={meshRef} scale={0.9}>
-                <icosahedronGeometry args={[2, 0]} />
-                <meshStandardMaterial color="#00f3ff" transparent opacity={0.1} />
             </mesh>
         </Float>
     );
