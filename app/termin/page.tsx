@@ -19,9 +19,23 @@ export default function Termin() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Handle form submission (e.g., send to backend)
-        console.log("Booking:", formData);
-        alert("Vielen Dank! Wir melden uns in Kürze bei Ihnen.");
+
+        // Construct email body
+        const subject = encodeURIComponent(`Terminanfrage: ${formData.service} - ${formData.car}`);
+        const body = encodeURIComponent(
+            `Neue Terminanfrage:\n\n` +
+            `Name: ${formData.name}\n` +
+            `E-Mail: ${formData.email}\n` +
+            `Telefon: ${formData.phone}\n` +
+            `Fahrzeug: ${formData.car}\n` +
+            `Service: ${formData.service}\n` +
+            `Wunschdatum: ${formData.date}\n` +
+            `Uhrzeit: ${formData.time || 'Keine Angabe'}\n\n` +
+            `Nachricht:\n${formData.message || 'Keine Nachricht'}`
+        );
+
+        // Open email client
+        window.location.href = `mailto:kontakt@eliasscho.de?subject=${subject}&body=${body}`;
     };
 
     return (
