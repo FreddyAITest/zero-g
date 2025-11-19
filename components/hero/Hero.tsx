@@ -1,61 +1,35 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useRef, useMemo } from "react";
+import { useRef } from "react";
 import { motion } from "framer-motion";
 import * as THREE from "three";
-import { Environment, Float, Stars } from "@react-three/drei";
+import { Environment, Float, ContactShadows, Stars } from "@react-three/drei";
 
-function DataNetwork(props: any) {
-    const points = useRef<THREE.Points>(null!);
-
-    // Generate random points for data visualization
-    const particles = useMemo(() => {
-        const temp = [];
-        for (let i = 0; i < 2000; i++) {
-            const x = (Math.random() - 0.5) * 10;
-            const y = (Math.random() - 0.5) * 10;
-            const z = (Math.random() - 0.5) * 10;
-            temp.push(x, y, z);
-        }
-        return new Float32Array(temp);
-    }, []);
+function Core(props: any) {
+    const meshRef = useRef<THREE.Mesh>(null!);
 
     useFrame((state, delta) => {
-        if (points.current) {
-            points.current.rotation.x -= delta * 0.1;
-            points.current.rotation.y -= delta * 0.15;
+        if (meshRef.current) {
+            meshRef.current.rotation.x += delta * 0.2;
+            meshRef.current.rotation.y += delta * 0.3;
         }
     });
 
     return (
-        <Float speed={1.5} rotationIntensity={0.5} floatIntensity={1}>
-            <points ref={points} {...props}>
-                <bufferGeometry>
-                    <bufferAttribute
-                        attach="attributes-position"
-                        count={particles.length / 3}
-                        array={particles}
-                        itemSize={3}
-                        args={[particles, 3]}
-                    />
-                </bufferGeometry>
-                <pointsMaterial
-                    size={0.03}
-                    color="#00f3ff"
-                    sizeAttenuation={true}
-                    transparent
-                    opacity={0.8}
-                />
-            </points>
-            <mesh scale={3}>
-                <icosahedronGeometry args={[1, 2]} />
+        <Float speed={2} rotationIntensity={1} floatIntensity={2}>
+            <mesh {...props} ref={meshRef}>
+                <icosahedronGeometry args={[2, 0]} />
                 <meshStandardMaterial
-                    color="#00f3ff"
-                    wireframe
-                    transparent
-                    opacity={0.05}
+                    color="#2a2a2a"
+                    roughness={0.1}
+                    metalness={0.8}
+                    wireframe={true}
                 />
+            </mesh>
+            <mesh ref={meshRef} scale={0.9}>
+                <icosahedronGeometry args={[2, 0]} />
+                <meshStandardMaterial color="#00f3ff" transparent opacity={0.1} />
             </mesh>
         </Float>
     );
@@ -67,9 +41,12 @@ export default function Hero() {
             <div className="absolute inset-0 z-0">
                 <Canvas camera={{ position: [0, 0, 6], fov: 45 }}>
                     <ambientLight intensity={0.5} />
-                    <DataNetwork />
+                    <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
+                    <pointLight position={[-10, -10, -10]} />
+                    <Core position={[0, 0, 0]} />
                     <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
                     <Environment preset="city" />
+                    <ContactShadows position={[0, -3, 0]} opacity={0.5} scale={10} blur={2.5} far={4} />
                 </Canvas>
             </div>
 
