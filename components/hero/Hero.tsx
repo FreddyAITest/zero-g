@@ -1,88 +1,95 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useRef, useState } from "react";
+import { useRef, useMemo } from "react";
 import { motion } from "framer-motion";
 import * as THREE from "three";
-import { Environment, Float, ContactShadows } from "@react-three/drei";
+import { Environment, Float, Stars } from "@react-three/drei";
 
-function Core(props: any) {
-    const meshRef = useRef<THREE.Mesh>(null!);
-    const [hovered, setHover] = useState(false);
+function DataNetwork(props: any) {
+    const points = useRef<THREE.Points>(null!);
+
+    // Generate random points for data visualization
+    const particles = useMemo(() => {
+        const temp = [];
+        for (let i = 0; i < 2000; i++) {
+            const x = (Math.random() - 0.5) * 10;
+            const y = (Math.random() - 0.5) * 10;
+            const z = (Math.random() - 0.5) * 10;
+            temp.push(x, y, z);
+        }
+        return new Float32Array(temp);
+    }, []);
 
     useFrame((state, delta) => {
-        if (meshRef.current) {
-            meshRef.current.rotation.x += delta * 0.2;
-            meshRef.current.rotation.y += delta * 0.3;
+        if (points.current) {
+            points.current.rotation.x -= delta * 0.1;
+            points.current.rotation.y -= delta * 0.15;
         }
-    });
-
-    return (
-        <Float speed={2} rotationIntensity={1} floatIntensity={2}>
-            <mesh
-                {...props}
-                ref={meshRef}
-                onPointerOver={() => setHover(true)}
-                onPointerOut={() => setHover(false)}
-                scale={hovered ? 1.1 : 1}
-            >
-                <icosahedronGeometry args={[2, 0]} />
+                />
+            </points >
+            <mesh scale={3}>
+                <icosahedronGeometry args={[1, 2]} />
                 <meshStandardMaterial
-                    color={hovered ? "#00f3ff" : "#2a2a2a"}
-                    roughness={0.1}
-                    metalness={0.8}
-                    wireframe={true}
+                    color="#00f3ff"
+                    wireframe
+                    transparent
+                    opacity={0.05}
                 />
             </mesh>
-            <mesh ref={meshRef} scale={0.9}>
-                <icosahedronGeometry args={[2, 0]} />
-                <meshStandardMaterial color="#000" transparent opacity={0.2} />
-            </mesh>
-        </Float>
+        </Float >
     );
 }
 
 export default function Hero() {
     return (
-        <section className="relative h-screen w-full flex items-center justify-center overflow-hidden">
+        <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-black">
             <div className="absolute inset-0 z-0">
                 <Canvas camera={{ position: [0, 0, 6], fov: 45 }}>
                     <ambientLight intensity={0.5} />
-                    <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
-                    <pointLight position={[-10, -10, -10]} />
-                    <Core position={[0, 0, 0]} />
+                    <DataNetwork />
+                    <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
                     <Environment preset="city" />
-                    <ContactShadows position={[0, -3, 0]} opacity={0.5} scale={10} blur={2.5} far={4} />
                 </Canvas>
             </div>
 
-            <div className="relative z-10 text-center pointer-events-none">
+            <div className="relative z-10 text-center pointer-events-none px-4">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8 }}
+                    className="inline-block mb-4 px-3 py-1 border border-primary/30 rounded-full bg-primary/10 backdrop-blur-md"
+                >
+                    <span className="text-primary text-xs font-mono tracking-widest">NEXT GEN DATA INTELLIGENCE</span>
+                </motion.div>
+
                 <motion.h1
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1, delay: 0.5 }}
-                    className="text-7xl md:text-9xl font-bold tracking-tighter text-white mix-blend-difference"
+                    transition={{ duration: 1, delay: 0.2 }}
+                    className="text-6xl md:text-8xl font-bold tracking-tighter text-white mix-blend-difference"
                 >
-                    DEFY PHYSICS.
+                    DECODE <br /> THE FUTURE.
                 </motion.h1>
+
                 <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ duration: 1, delay: 1 }}
-                    className="mt-4 text-xl text-gray-400 font-mono"
+                    transition={{ duration: 1, delay: 0.6 }}
+                    className="mt-6 text-lg md:text-xl text-gray-400 font-mono max-w-2xl mx-auto"
                 >
-                    ZERO-G TRANSPORT SYSTEMS
+                    Advanced analytics and predictive modeling for the enterprise.
+                    <br />Turn chaos into clarity with ZERO-G.
                 </motion.p>
 
                 <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: 1.5 }}
+                    transition={{ duration: 0.5, delay: 1 }}
                     className="mt-12 pointer-events-auto"
                 >
-                    <button className="group relative px-8 py-4 bg-transparent border border-white/20 text-white font-mono uppercase tracking-widest hover:bg-white/10 transition-all duration-300 overflow-hidden">
-                        <span className="relative z-10">Enter Zero-G</span>
-                        <div className="absolute inset-0 bg-primary/20 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500" />
+                    <button className="group relative px-8 py-4 bg-white text-black font-mono font-bold uppercase tracking-widest hover:bg-primary hover:text-black transition-all duration-300">
+                        <span className="relative z-10">Analyze Data</span>
                     </button>
                 </motion.div>
             </div>

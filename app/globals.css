@@ -23,11 +23,11 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), sans-serif;
   overflow-x: hidden;
-  cursor: none; /* Custom cursor */
 }
 
 /* Lenis Smooth Scroll */
-html.lenis, html.lenis body {
+html.lenis,
+html.lenis body {
   height: auto;
 }
 
