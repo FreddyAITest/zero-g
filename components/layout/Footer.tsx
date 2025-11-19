@@ -2,17 +2,17 @@
 
 export default function Footer() {
     return (
-        <footer className="bg-black border-t border-white/10 py-16 text-gray-400 font-mono text-sm">
+        <footer className="bg-[#0a0a0a] border-t border-white/10 py-16 text-gray-400 font-mono text-sm">
             <div className="container mx-auto px-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
 
                     {/* Company Info */}
                     <div>
-                        <h3 className="text-white text-lg font-bold mb-4 uppercase tracking-widest">ZERO-G Data Intelligence GmbH</h3>
+                        <h3 className="text-white text-lg font-bold mb-4 uppercase tracking-widest">ZERO-G Performance GmbH</h3>
                         <p className="mb-2">Musterstraße 1</p>
                         <p className="mb-6">10115 Berlin, Deutschland</p>
 
-                        <p className="mb-1"><span className="text-white/60">E-Mail:</span> contact@zero-g.tech</p>
+                        <p className="mb-1"><span className="text-white/60">E-Mail:</span> service@zero-g-performance.de</p>
                         <p><span className="text-white/60">Tel:</span> +49 (0) 30 12345678</p>
                     </div>
 
@@ -39,11 +39,11 @@ export default function Footer() {
                 </div>
 
                 <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-600">
-                    <p>&copy; {new Date().getFullYear()} ZERO-G Data Intelligence GmbH. Alle Rechte vorbehalten.</p>
+                    <p>&copy; {new Date().getFullYear()} ZERO-G Performance GmbH. Alle Rechte vorbehalten.</p>
                     <div className="flex gap-6">
-                        <a href="#" className="hover:text-primary transition-colors">Datenschutzerklärung</a>
-                        <a href="#" className="hover:text-primary transition-colors">AGB</a>
-                        <a href="#" className="hover:text-primary transition-colors">Impressum</a>
+                        <a href="#" className="hover:text-white transition-colors">Datenschutzerklärung</a>
+                        <a href="#" className="hover:text-white transition-colors">AGB</a>
+                        <a href="#" className="hover:text-white transition-colors">Impressum</a>
                     </div>
                 </div>
             </div>

@@ -4,86 +4,87 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import { motion } from "framer-motion";
 import * as THREE from "three";
-import { Environment, Float, ContactShadows, Stars } from "@react-three/drei";
+import { Environment, Float, ContactShadows } from "@react-three/drei";
 
-function Core(props: any) {
-    const meshRef = useRef<THREE.Mesh>(null!);
+function FloatingRim(props: any) {
+    const meshRef = useRef<THREE.Group>(null!);
 
     useFrame((state, delta) => {
         if (meshRef.current) {
-            meshRef.current.rotation.x += delta * 0.05;
-            meshRef.current.rotation.y += delta * 0.08;
+            meshRef.current.rotation.y += delta * 0.1;
+            meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.2) * 0.1;
         }
     });
 
     return (
-        <Float speed={1} rotationIntensity={0.5} floatIntensity={1}>
-            <mesh {...props} ref={meshRef}>
-                <icosahedronGeometry args={[2, 0]} />
-                <meshStandardMaterial
-                    color="#ffffff"
-                    roughness={0.1}
-                    metalness={0.8}
-                    wireframe={true}
-                />
-            </mesh>
+        <Float speed={1.5} rotationIntensity={0.2} floatIntensity={1}>
+            <group ref={meshRef} {...props}>
+                {/* Simplified Rim Geometry using Torus and Cylinders */}
+                <mesh rotation={[Math.PI / 2, 0, 0]}>
+                    <torusGeometry args={[2, 0.15, 16, 100]} />
+                    <meshStandardMaterial color="#333" roughness={0.2} metalness={0.9} />
+                </mesh>
+                {/* Spokes */}
+                {[0, 60, 120, 180, 240, 300].map((angle) => (
+                    <mesh key={angle} rotation={[0, 0, (angle * Math.PI) / 180]}>
+                        <boxGeometry args={[0.2, 3.8, 0.1]} />
+                        <meshStandardMaterial color="#555" roughness={0.2} metalness={0.8} />
+                    </mesh>
+                ))}
+                {/* Center Cap */}
+                <mesh rotation={[Math.PI / 2, 0, 0]}>
+                    <cylinderGeometry args={[0.4, 0.4, 0.2, 32]} />
+                    <meshStandardMaterial color="#111" roughness={0.5} metalness={0.5} />
+                </mesh>
+            </group>
         </Float>
     );
 }
 
 export default function Hero() {
     return (
-        <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-black">
-            <div className="absolute inset-0 z-0">
-                <Canvas camera={{ position: [0, 0, 6], fov: 45 }}>
-                    <ambientLight intensity={0.5} />
-                    <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
-                    <pointLight position={[-10, -10, -10]} />
-                    <Core position={[0, 0, 0]} />
-                    <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-                    <Environment preset="city" />
-                    <ContactShadows position={[0, -3, 0]} opacity={0.5} scale={10} blur={2.5} far={4} />
+        <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-[#0a0a0a]">
+            <div className="absolute inset-0 z-0 opacity-60">
+                <Canvas camera={{ position: [0, 0, 6], fov: 40 }}>
+                    <ambientLight intensity={1} />
+                    <spotLight position={[10, 10, 10]} angle={0.5} penumbra={1} intensity={2} />
+                    <pointLight position={[-10, -5, -5]} intensity={1} color="#444" />
+                    <FloatingRim position={[2, 0, 0]} />
+                    <Environment preset="studio" />
+                    <ContactShadows position={[0, -3, 0]} opacity={0.4} scale={10} blur={2} far={4} />
                 </Canvas>
             </div>
 
-            <div className="relative z-10 text-center pointer-events-none px-4">
+            <div className="container mx-auto px-4 relative z-10 flex flex-col justify-center h-full">
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
-                    className="inline-block mb-4 px-3 py-1 border border-primary/30 rounded-full bg-primary/10 backdrop-blur-md"
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 1 }}
+                    className="max-w-3xl"
                 >
-                    <span className="text-primary text-xs font-mono tracking-widest">NEXT GEN DATA INTELLIGENCE</span>
-                </motion.div>
+                    <div className="flex items-center gap-4 mb-6">
+                        <div className="h-[1px] w-12 bg-white/50" />
+                        <span className="text-white/70 text-sm font-mono tracking-[0.3em] uppercase">Meisterwerkstatt</span>
+                    </div>
 
-                <motion.h1
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1, delay: 0.2 }}
-                    className="text-6xl md:text-8xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-primary/50 drop-shadow-[0_0_30px_rgba(0,243,255,0.3)]"
-                >
-                    DECODE <br /> THE FUTURE.
-                </motion.h1>
+                    <h1 className="text-6xl md:text-8xl font-bold text-white mb-8 leading-tight tracking-tighter">
+                        ZERO-G <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">PERFORMANCE.</span>
+                    </h1>
 
-                <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 1, delay: 0.6 }}
-                    className="mt-6 text-lg md:text-xl text-gray-400 font-mono max-w-2xl mx-auto"
-                >
-                    Advanced analytics and predictive modeling for the enterprise.
-                    <br />Turn chaos into clarity with ZERO-G.
-                </motion.p>
+                    <p className="text-xl text-gray-400 max-w-lg leading-relaxed mb-12 font-light">
+                        Wir heben Ihr Fahrzeug auf das nächste Level.
+                        Präzision, Leidenschaft und modernste Technik für Ihr Automobil.
+                    </p>
 
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: 1 }}
-                    className="mt-12 pointer-events-auto"
-                >
-                    <button className="group relative px-8 py-4 bg-white text-black font-mono font-bold uppercase tracking-widest hover:bg-primary hover:text-black transition-all duration-300">
-                        <span className="relative z-10">Analyze Data</span>
-                    </button>
+                    <div className="flex gap-6">
+                        <button className="px-8 py-4 bg-white text-black font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors">
+                            Termin Buchen
+                        </button>
+                        <button className="px-8 py-4 border border-white/20 text-white font-bold uppercase tracking-widest hover:bg-white/5 transition-colors">
+                            Unsere Services
+                        </button>
+                    </div>
                 </motion.div>
             </div>
         </section>
