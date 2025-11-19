@@ -11,13 +11,13 @@ function Core(props: any) {
 
     useFrame((state, delta) => {
         if (meshRef.current) {
-            meshRef.current.rotation.x += delta * 0.2;
-            meshRef.current.rotation.y += delta * 0.3;
+            meshRef.current.rotation.x += delta * 0.05;
+            meshRef.current.rotation.y += delta * 0.08;
         }
     });
 
     return (
-        <Float speed={2} rotationIntensity={1} floatIntensity={2}>
+        <Float speed={1} rotationIntensity={0.5} floatIntensity={1}>
             <mesh {...props} ref={meshRef}>
                 <icosahedronGeometry args={[2, 0]} />
                 <meshStandardMaterial
@@ -60,7 +60,7 @@ export default function Hero() {
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1, delay: 0.2 }}
-                    className="text-6xl md:text-8xl font-bold tracking-tighter text-white mix-blend-difference"
+                    className="text-6xl md:text-8xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-primary/50 drop-shadow-[0_0_30px_rgba(0,243,255,0.3)]"
                 >
                     DECODE <br /> THE FUTURE.
                 </motion.h1>
