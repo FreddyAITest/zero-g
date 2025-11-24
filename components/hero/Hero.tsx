@@ -1,5 +1,4 @@
 "use client";
-"use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useRef } from "react";
@@ -8,35 +7,71 @@ import * as THREE from "three";
 import { Environment, Float, ContactShadows } from "@react-three/drei";
 import Link from "next/link";
 
-function FloatingRim(props: any) {
-    const meshRef = useRef<THREE.Group>(null!);
+function FloatingCar(props: any) {
+    const groupRef = useRef<THREE.Group>(null!);
 
     useFrame((state, delta) => {
-        if (meshRef.current) {
-            meshRef.current.rotation.y += delta * 0.1;
-            meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.2) * 0.1;
+        if (groupRef.current) {
+            groupRef.current.rotation.y += delta * 0.2;
+            groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.3) * 0.05;
         }
     });
 
     return (
-        <Float speed={1.5} rotationIntensity={0.2} floatIntensity={1}>
-            <group ref={meshRef} {...props}>
-                {/* Simplified Rim Geometry using Torus and Cylinders */}
-                <mesh rotation={[Math.PI / 2, 0, 0]}>
-                    <torusGeometry args={[2, 0.15, 16, 100]} />
-                    <meshStandardMaterial color="#333" roughness={0.2} metalness={0.9} />
+        <Float speed={2} rotationIntensity={0.5} floatIntensity={1}>
+            <group ref={groupRef} {...props}>
+                {/* Car Body - Main Chassis */}
+                <mesh position={[0, 0.5, 0]}>
+                    <boxGeometry args={[4.5, 0.8, 1.8]} />
+                    <meshStandardMaterial color="#1a1a1a" roughness={0.2} metalness={0.8} />
                 </mesh>
-                {/* Spokes */}
-                {[0, 60, 120, 180, 240, 300].map((angle) => (
-                    <mesh key={angle} rotation={[0, 0, (angle * Math.PI) / 180]}>
-                        <boxGeometry args={[0.2, 3.8, 0.1]} />
-                        <meshStandardMaterial color="#555" roughness={0.2} metalness={0.8} />
-                    </mesh>
+
+                {/* Cabin / Roof */}
+                <mesh position={[-0.2, 1.1, 0]}>
+                    <boxGeometry args={[2.5, 0.7, 1.6]} />
+                    <meshStandardMaterial color="#0a0a0a" roughness={0.1} metalness={0.9} />
+                </mesh>
+
+                {/* Windshield (Visual) */}
+                <mesh position={[1.1, 1.1, 0]} rotation={[0, 0, -0.5]}>
+                    <boxGeometry args={[0.1, 0.75, 1.5]} />
+                    <meshStandardMaterial color="#333" roughness={0.1} metalness={1} transparent opacity={0.9} />
+                </mesh>
+
+                {/* Wheels */}
+                {[
+                    [1.5, 0, 0.9],  // Front Left
+                    [1.5, 0, -0.9], // Front Right
+                    [-1.5, 0, 0.9], // Rear Left
+                    [-1.5, 0, -0.9] // Rear Right
+                ].map((pos, i) => (
+                    <group key={i} position={pos as [number, number, number]}>
+                        <mesh rotation={[Math.PI / 2, 0, 0]}>
+                            <cylinderGeometry args={[0.4, 0.4, 0.3, 32]} />
+                            <meshStandardMaterial color="#333" roughness={0.5} metalness={0.5} />
+                        </mesh>
+                        {/* Rim Detail */}
+                        <mesh rotation={[Math.PI / 2, 0, 0]}>
+                            <torusGeometry args={[0.25, 0.05, 16, 32]} />
+                            <meshStandardMaterial color="#fff" emissive="#fff" emissiveIntensity={0.5} />
+                        </mesh>
+                    </group>
                 ))}
-                {/* Center Cap */}
-                <mesh rotation={[Math.PI / 2, 0, 0]}>
-                    <cylinderGeometry args={[0.4, 0.4, 0.2, 32]} />
-                    <meshStandardMaterial color="#111" roughness={0.5} metalness={0.5} />
+
+                {/* Headlights */}
+                <mesh position={[2.26, 0.5, 0.6]}>
+                    <boxGeometry args={[0.1, 0.2, 0.4]} />
+                    <meshStandardMaterial color="#fff" emissive="#fff" emissiveIntensity={2} />
+                </mesh>
+                <mesh position={[2.26, 0.5, -0.6]}>
+                    <boxGeometry args={[0.1, 0.2, 0.4]} />
+                    <meshStandardMaterial color="#fff" emissive="#fff" emissiveIntensity={2} />
+                </mesh>
+
+                {/* Taillights */}
+                <mesh position={[-2.26, 0.6, 0]}>
+                    <boxGeometry args={[0.1, 0.15, 1.6]} />
+                    <meshStandardMaterial color="#f00" emissive="#f00" emissiveIntensity={2} />
                 </mesh>
             </group>
         </Float>
@@ -46,23 +81,23 @@ function FloatingRim(props: any) {
 export default function Hero() {
     return (
         <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-[#0a0a0a]">
-            <div className="absolute inset-0 z-0 opacity-60">
-                <Canvas camera={{ position: [0, 0, 6], fov: 40 }}>
-                    <ambientLight intensity={1} />
+            <div className="absolute inset-0 z-0 opacity-80">
+                <Canvas camera={{ position: [0, 2, 8], fov: 45 }}>
+                    <ambientLight intensity={0.5} />
                     <spotLight position={[10, 10, 10]} angle={0.5} penumbra={1} intensity={2} />
                     <pointLight position={[-10, -5, -5]} intensity={1} color="#444" />
-                    <FloatingRim position={[2, 0, 0]} />
-                    <Environment preset="studio" />
-                    <ContactShadows position={[0, -3, 0]} opacity={0.4} scale={10} blur={2} far={4} />
+                    <FloatingCar position={[0, -0.5, 0]} rotation={[0, Math.PI / 4, 0]} />
+                    <Environment preset="city" />
+                    <ContactShadows position={[0, -2, 0]} opacity={0.5} scale={15} blur={2.5} far={5} />
                 </Canvas>
             </div>
 
-            <div className="container mx-auto px-4 relative z-10 flex flex-col justify-center h-full">
+            <div className="container mx-auto px-4 relative z-10 flex flex-col justify-center h-full pointer-events-none">
                 <motion.div
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 1 }}
-                    className="max-w-3xl"
+                    className="max-w-3xl pointer-events-auto"
                 >
                     <div className="flex items-center gap-4 mb-6">
                         <div className="h-[1px] w-12 bg-white/50" />
@@ -85,9 +120,11 @@ export default function Hero() {
                                 Termin Buchen
                             </button>
                         </Link>
-                        <button className="px-8 py-4 border border-white/20 text-white font-bold uppercase tracking-widest hover:bg-white/5 transition-colors">
-                            Unsere Services
-                        </button>
+                        <Link href="/services">
+                            <button className="px-8 py-4 border border-white/20 text-white font-bold uppercase tracking-widest hover:bg-white/5 transition-colors">
+                                Unsere Services
+                            </button>
+                        </Link>
                     </div>
                 </motion.div>
             </div>
